@@ -6,10 +6,11 @@ import { useCartStore } from '@/lib/cartStore'
 
 const nav = [
   { label: 'Home', href: '/' },
-  { label: 'Ram Lock', href: '/products/ram-lock' },
-  { label: 'Rotor Lock', href: '/products/rotor-lock' },
+  { label: 'Ram Lock', href: '/ram-lock' },
+  { label: 'Rotor Lock', href: '/rotor-lock' },
+  { label: 'Rotor Lock Comparison', href: '/rotor-lock-comparison' },
   { label: 'Store', href: '/store' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Contact Us', href: '/contact' },
 ]
 
 export default function Header() {
