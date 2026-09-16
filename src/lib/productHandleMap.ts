@@ -8,3 +8,12 @@ export const productHandleMap: Record<string, string> = {
 export function resolveShopifyHandle(urlHandle: string): string {
   return productHandleMap[urlHandle] ?? urlHandle
 }
+
+// Reverse: maps a Shopify handle back to the clean URL handle
+const reverseHandleMap = Object.fromEntries(
+  Object.entries(productHandleMap).map(([url, shopify]) => [shopify, url])
+)
+
+export function resolveUrlHandle(shopifyHandle: string): string {
+  return reverseHandleMap[shopifyHandle] ?? shopifyHandle
+}

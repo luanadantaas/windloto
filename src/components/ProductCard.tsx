@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShopifyProduct } from '@/types/shopify'
+import { resolveUrlHandle } from '@/lib/productHandleMap'
 
 export default function ProductCard({ product }: { product: ShopifyProduct }) {
+  const urlHandle = resolveUrlHandle(product.handle)
   const price = parseFloat(product.priceRange.minVariantPrice.amount).toFixed(2)
   const currency = product.priceRange.minVariantPrice.currencyCode
   const featuredImage = product.images.edges[0]?.node
 
   return (
-    <Link href={`/products/${product.handle}`} className="group">
+    <Link href={`/products/${urlHandle}`} className="group">
       <div className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-[#f97316] hover:shadow-lg transition-all duration-200">
         <div className="relative h-52 bg-slate-100 overflow-hidden">
           {featuredImage ? (
