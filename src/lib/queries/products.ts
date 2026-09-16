@@ -22,6 +22,10 @@ export const GET_ALL_PRODUCTS_QUERY = `
               }
             }
           }
+          options {
+            name
+            values
+          }
           variants(first: 10) {
             edges {
               node {
@@ -31,6 +35,10 @@ export const GET_ALL_PRODUCTS_QUERY = `
                 price {
                   amount
                   currencyCode
+                }
+                selectedOptions {
+                  name
+                  value
                 }
               }
             }
@@ -43,7 +51,7 @@ export const GET_ALL_PRODUCTS_QUERY = `
 
 export const GET_PRODUCT_BY_HANDLE_QUERY = `
   query getProductByHandle($handle: String!) {
-    productByHandle(handle: $handle) {
+    product(handle: $handle) {
       id
       title
       handle
@@ -63,6 +71,10 @@ export const GET_PRODUCT_BY_HANDLE_QUERY = `
           }
         }
       }
+      options {
+        name
+        values
+      }
       variants(first: 10) {
         edges {
           node {
@@ -72,6 +84,10 @@ export const GET_PRODUCT_BY_HANDLE_QUERY = `
             price {
               amount
               currencyCode
+            }
+            selectedOptions {
+              name
+              value
             }
           }
         }

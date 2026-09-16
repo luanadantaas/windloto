@@ -3,6 +3,25 @@ export interface ShopifyImage {
   altText?: string
 }
 
+export interface ShopifyProductOption {
+  name: string
+  values: string[]
+}
+
+export interface ShopifyVariant {
+  id: string
+  title: string
+  availableForSale: boolean
+  price: {
+    amount: string
+    currencyCode: string
+  }
+  selectedOptions: Array<{
+    name: string
+    value: string
+  }>
+}
+
 export interface ShopifyProduct {
   id: string
   title: string
@@ -15,21 +34,12 @@ export interface ShopifyProduct {
       currencyCode: string
     }
   }
+  options: ShopifyProductOption[]
   images: {
     edges: Array<{ node: ShopifyImage }>
   }
   variants: {
-    edges: Array<{
-      node: {
-        id: string
-        title: string
-        availableForSale: boolean
-        price: {
-          amount: string
-          currencyCode: string
-        }
-      }
-    }>
+    edges: Array<{ node: ShopifyVariant }>
   }
   technicalSpecs?: {
     value: string

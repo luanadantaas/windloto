@@ -2,83 +2,152 @@
 
 import { useState, useEffect } from 'react'
 import AddToCartButton from './AddToCartButton'
+import { ShopifyVariant, ShopifyProductOption } from '@/types/shopify'
 
-interface Variant {
-  id: string
-  title: string
-  availableForSale: boolean
-  price: {
-    amount: string
-    currencyCode: string
-  }
+const BULK_MIN = 20
+const COLOR_OPTION_NAME = 'Color'
+
+const COLOR_MAP: Record<string, string> = {
+  red: '#ef4444',
+  blue: '#3b82f6',
+  black: '#1f2937',
+  white: '#f9fafb',
+  silver: '#9ca3af',
+  gray: '#6b7280',
+  grey: '#6b7280',
+  green: '#22c55e',
+  yellow: '#eab308',
+  orange: '#f97316',
+  navy: '#0f2d5a',
+}
+
+function getColorHex(value: string): string | null {
+  return COLOR_MAP[value.toLowerCase()] ?? null
+}
+
+function isBulkVariant(variant: ShopifyVariant): boolean {
+  return variant.selectedOptions.some(
+    (o) => o.name.toLowerCase().includes('order') && o.value.toLowerCase().includes('bulk')
+  )
+}
+
+function findVariant(
+  variants: ShopifyVariant[],
+  selected: Record<string, string>
+): ShopifyVariant | undefined {
+  return variants.find((v) =>
+    v.selectedOptions.every((o) => selected[o.name] === o.value)
+  )
 }
 
 interface Props {
-  variants: Variant[]
+  options: ShopifyProductOption[]
+  variants: ShopifyVariant[]
   productTitle: string
   productImage: string
 }
 
-const BULK_MIN = 20
+export default function VariantSelector({ options, variants, productTitle, productImage }: Props) {
+  const firstVariant = variants[0]
 
-function isBulk(variant: Variant) {
-  return variant.title.toLowerCase().includes('bulk')
-}
+  const initialSelected: Record<string, string> = {}
+  firstVariant?.selectedOptions.forEach((o) => { initialSelected[o.name] = o.value })
 
-export default function VariantSelector({ variants, productTitle, productImage }: Props) {
-  const [selected, setSelected] = useState(variants[0])
-  const [quantity, setQuantity] = useState(isBulk(variants[0]) ? BULK_MIN : 1)
+  const [selected, setSelected] = useState<Record<string, string>>(initialSelected)
+  const [quantity, setQuantity] = useState(1)
+
+  const activeVariant = findVariant(variants, selected) ?? firstVariant
+  const isBulk = activeVariant ? isBulkVariant(activeVariant) : false
+  const minQty = isBulk ? BULK_MIN : 1
 
   useEffect(() => {
-    setQuantity(isBulk(selected) ? BULK_MIN : 1)
-  }, [selected])
+    setQuantity(isBulk ? BULK_MIN : 1)
+  }, [isBulk])
 
-  const price = parseFloat(selected.price.amount)
-  const currency = selected.price.currencyCode
-  const minQty = isBulk(selected) ? BULK_MIN : 1
-
-  function handleQtyChange(val: number) {
-    setQuantity(Math.max(minQty, val))
+  function selectOption(name: string, value: string) {
+    setSelected((prev) => ({ ...prev, [name]: value }))
   }
 
+  const price = parseFloat(activeVariant?.price.amount ?? '0')
+  const currency = activeVariant?.price.currencyCode ?? 'USD'
+
   return (
-    <div className="space-y-4">
-      {/* Variant picker */}
-      {variants.length > 1 && (
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Order Type</label>
-          <div className="flex flex-col gap-2">
-            {variants.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelected(v)}
-                className={`flex items-center justify-between px-4 py-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                  selected.id === v.id
-                    ? 'border-[#0f2d5a] bg-[#0f2d5a]/5 text-[#0f2d5a]'
-                    : 'border-slate-200 text-slate-600 hover:border-slate-300'
-                }`}
-              >
-                <span>{v.title}</span>
-                <span className={selected.id === v.id ? 'text-[#f97316] font-bold' : 'text-slate-500'}>
-                  {currency} {parseFloat(v.price.amount).toFixed(2)} / unit
-                </span>
-              </button>
-            ))}
+    <div className="space-y-5">
+      {options.map((option) => {
+        const isColor = option.name === COLOR_OPTION_NAME
+        return (
+          <div key={option.name}>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              {option.name}
+              {isColor && selected[option.name] && (
+                <span className="ml-2 font-normal text-slate-500">{selected[option.name]}</span>
+              )}
+            </label>
+
+            {isColor ? (
+              /* Color swatches */
+              <div className="flex flex-wrap gap-2">
+                {option.values.map((value) => {
+                  const hex = getColorHex(value)
+                  const isActive = selected[option.name] === value
+                  return (
+                    <button
+                      key={value}
+                      title={value}
+                      onClick={() => selectOption(option.name, value)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${
+                        isActive ? 'border-[#0f2d5a] scale-110 shadow-md' : 'border-slate-300 hover:border-slate-400'
+                      }`}
+                      style={{ backgroundColor: hex ?? '#e5e7eb' }}
+                    >
+                      {!hex && (
+                        <span className="text-xs text-slate-600 leading-none">{value[0]}</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              /* Other options (e.g. Order Type) */
+              <div className="flex flex-col gap-2">
+                {option.values.map((value) => {
+                  const isActive = selected[option.name] === value
+                  const testVariant = findVariant(variants, { ...selected, [option.name]: value })
+                  const optionPrice = testVariant ? parseFloat(testVariant.price.amount) : null
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => selectOption(option.name, value)}
+                      className={`flex items-center justify-between px-4 py-3 rounded-lg border-2 text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'border-[#0f2d5a] bg-[#0f2d5a]/5 text-[#0f2d5a]'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      <span>{value}</span>
+                      {optionPrice !== null && (
+                        <span className={isActive ? 'text-[#f97316] font-bold' : 'text-slate-400'}>
+                          {currency} {optionPrice.toFixed(2)} / unit
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )
+      })}
 
       {/* Quantity */}
       <div>
         <label className="block text-sm font-medium text-slate-700 mb-2">
           Quantity
-          {isBulk(selected) && (
-            <span className="ml-2 text-xs font-normal text-[#f97316]">minimum {BULK_MIN} units</span>
-          )}
+          {isBulk && <span className="ml-2 text-xs font-normal text-[#f97316]">minimum {BULK_MIN} units</span>}
         </label>
         <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden w-fit">
           <button
-            onClick={() => handleQtyChange(quantity - 1)}
+            onClick={() => setQuantity((q) => Math.max(minQty, q - 1))}
             disabled={quantity <= minQty}
             className="px-4 py-2 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg"
           >
@@ -88,11 +157,11 @@ export default function VariantSelector({ variants, productTitle, productImage }
             type="number"
             min={minQty}
             value={quantity}
-            onChange={(e) => handleQtyChange(parseInt(e.target.value) || minQty)}
+            onChange={(e) => setQuantity(Math.max(minQty, parseInt(e.target.value) || minQty))}
             className="w-16 text-center py-2 text-sm font-medium border-x border-slate-300 focus:outline-none"
           />
           <button
-            onClick={() => handleQtyChange(quantity + 1)}
+            onClick={() => setQuantity((q) => q + 1)}
             className="px-4 py-2 hover:bg-slate-100 text-slate-600 transition-colors text-lg"
           >
             +
@@ -105,10 +174,8 @@ export default function VariantSelector({ variants, productTitle, productImage }
         <span className="text-2xl font-bold text-[#0f2d5a]">
           {currency} {(price * quantity).toFixed(2)}
         </span>
-        <span className="text-slate-400 text-sm">
-          {currency} {price.toFixed(2)} × {quantity}
-        </span>
-        {isBulk(selected) && (
+        <span className="text-slate-400 text-sm">{currency} {price.toFixed(2)} × {quantity}</span>
+        {isBulk && (
           <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
             Bulk discount
           </span>
@@ -116,11 +183,11 @@ export default function VariantSelector({ variants, productTitle, productImage }
       </div>
 
       <AddToCartButton
-        variantId={selected.id}
-        title={`${productTitle} — ${selected.title}`}
+        variantId={activeVariant?.id ?? ''}
+        title={`${productTitle}${activeVariant?.title !== 'Default Title' ? ` — ${activeVariant?.title}` : ''}`}
         price={price}
         image={productImage}
-        availableForSale={selected.availableForSale}
+        availableForSale={activeVariant?.availableForSale ?? false}
         quantity={quantity}
       />
     </div>

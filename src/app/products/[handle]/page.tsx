@@ -61,6 +61,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
           <div className="mb-6">
             <VariantSelector
+              options={product.options}
               variants={variants}
               productTitle={product.title}
               productImage={images[0]?.url ?? ''}
