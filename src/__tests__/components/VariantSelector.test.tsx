@@ -57,6 +57,32 @@ const colorVariants = [
   },
 ]
 
+// Includes 'Chartreuse' which is NOT in COLOR_MAP → should render as text pill
+const mixedColorOptions = [{ name: 'Color', values: ['Navy', 'Red', 'Chartreuse'] }]
+const mixedColorVariants = [
+  {
+    id: 'mc1',
+    title: 'Navy',
+    availableForSale: true,
+    price: { amount: '62.50', currencyCode: 'USD' },
+    selectedOptions: [{ name: 'Color', value: 'Navy' }],
+  },
+  {
+    id: 'mc2',
+    title: 'Red',
+    availableForSale: true,
+    price: { amount: '62.50', currencyCode: 'USD' },
+    selectedOptions: [{ name: 'Color', value: 'Red' }],
+  },
+  {
+    id: 'mc3',
+    title: 'Chartreuse',
+    availableForSale: true,
+    price: { amount: '62.50', currencyCode: 'USD' },
+    selectedOptions: [{ name: 'Color', value: 'Chartreuse' }],
+  },
+]
+
 const defaultProps = {
   options,
   variants,
@@ -140,5 +166,66 @@ describe('VariantSelector', () => {
     // Default: 62.50 × 1 = USD 62.50
     expect(screen.getByText('USD 62.50')).toBeInTheDocument()
     expect(screen.getByText(/USD 62\.50 × 1/)).toBeInTheDocument()
+  })
+})
+
+describe('VariantSelector — color swatches', () => {
+  const colorProps = {
+    options: colorOptions,
+    variants: colorVariants,
+    productTitle: 'Ram Lock',
+    productImage: 'img.jpg',
+  }
+
+  it('known color swatch has aria-label equal to the color name', () => {
+    render(<VariantSelector {...colorProps} />)
+    expect(screen.getByLabelText('Red')).toBeInTheDocument()
+    expect(screen.getByLabelText('Navy')).toBeInTheDocument()
+  })
+
+  it('first color swatch is aria-pressed="true" by default (it is selected)', () => {
+    render(<VariantSelector {...colorProps} />)
+    // First variant is Red — its swatch should be pressed
+    expect(screen.getByLabelText('Red')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByLabelText('Blue')).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('clicking a color swatch selects it (aria-pressed becomes true)', async () => {
+    const user = userEvent.setup()
+    render(<VariantSelector {...colorProps} />)
+    await user.click(screen.getByLabelText('Navy'))
+    expect(screen.getByLabelText('Navy')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByLabelText('Red')).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('unknown color renders as a text pill button, not a circle with a letter', () => {
+    render(
+      <VariantSelector
+        options={mixedColorOptions}
+        variants={mixedColorVariants}
+        productTitle="Test"
+        productImage="img.jpg"
+      />
+    )
+    const pill = screen.getByRole('button', { name: 'Chartreuse' })
+    expect(pill).toBeInTheDocument()
+    // Is a text pill — does NOT have rounded-full class
+    expect(pill.className).not.toContain('rounded-full')
+    expect(pill.className).toContain('rounded-lg')
+  })
+
+  it('unknown color text pill becomes active when clicked', async () => {
+    const user = userEvent.setup()
+    render(
+      <VariantSelector
+        options={mixedColorOptions}
+        variants={mixedColorVariants}
+        productTitle="Test"
+        productImage="img.jpg"
+      />
+    )
+    const pill = screen.getByRole('button', { name: 'Chartreuse' })
+    await user.click(pill)
+    expect(pill.className).toContain('border-[#0f2d5a]')
   })
 })

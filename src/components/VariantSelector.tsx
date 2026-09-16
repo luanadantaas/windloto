@@ -8,17 +8,46 @@ const BULK_MIN = 20
 const COLOR_OPTION_NAME = 'Color'
 
 const COLOR_MAP: Record<string, string> = {
+  // Basics
   red: '#ef4444',
   blue: '#3b82f6',
   black: '#1f2937',
   white: '#f9fafb',
-  silver: '#9ca3af',
   gray: '#6b7280',
   grey: '#6b7280',
   green: '#22c55e',
-  yellow: '#eab308',
+  yellow: '#facc15',
   orange: '#f97316',
+  // Brand / industrial
   navy: '#0f2d5a',
+  silver: '#9ca3af',
+  gold: '#f59e0b',
+  brown: '#92400e',
+  purple: '#7c3aed',
+  pink: '#ec4899',
+  teal: '#0d9488',
+  cyan: '#06b6d4',
+  // Safety / high-visibility
+  'safety yellow': '#facc15',
+  'safety orange': '#f97316',
+  'hi-vis yellow': '#facc15',
+  'hi-vis orange': '#fb923c',
+  'safety red': '#dc2626',
+  // Common descriptive names
+  'dark blue': '#1e3a8a',
+  'light blue': '#93c5fd',
+  'dark gray': '#374151',
+  'light gray': '#d1d5db',
+  'dark green': '#166534',
+  'bright yellow': '#fde047',
+  'bright orange': '#f97316',
+  'bright red': '#ef4444',
+  'matte black': '#111827',
+  'gloss black': '#000000',
+  white: '#ffffff',
+  'off-white': '#fafaf9',
+  beige: '#d6c5a0',
+  tan: '#d4a76a',
 }
 
 function getColorHex(value: string): string | null {
@@ -86,23 +115,37 @@ export default function VariantSelector({ options, variants, productTitle, produ
 
             {isColor ? (
               /* Color swatches */
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {option.values.map((value) => {
                   const hex = getColorHex(value)
                   const isActive = selected[option.name] === value
-                  return (
+                  return hex ? (
+                    /* Known color → circular swatch */
                     <button
                       key={value}
                       title={value}
+                      aria-label={value}
+                      aria-pressed={isActive}
                       onClick={() => selectOption(option.name, value)}
-                      className={`w-8 h-8 rounded-full border-2 transition-all ${
-                        isActive ? 'border-[#0f2d5a] scale-110 shadow-md' : 'border-slate-300 hover:border-slate-400'
+                      className={`w-9 h-9 rounded-full border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[#0f2d5a] focus:ring-offset-1 ${
+                        isActive
+                          ? 'border-[#0f2d5a] scale-110 shadow-md ring-2 ring-[#0f2d5a] ring-offset-1'
+                          : 'border-slate-300 hover:border-slate-500 hover:scale-105'
                       }`}
-                      style={{ backgroundColor: hex ?? '#e5e7eb' }}
+                      style={{ backgroundColor: hex }}
+                    />
+                  ) : (
+                    /* Unknown color → text pill (same style as other options) */
+                    <button
+                      key={value}
+                      onClick={() => selectOption(option.name, value)}
+                      className={`px-3 py-1.5 rounded-lg border-2 text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'border-[#0f2d5a] bg-[#0f2d5a]/5 text-[#0f2d5a]'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
                     >
-                      {!hex && (
-                        <span className="text-xs text-slate-600 leading-none">{value[0]}</span>
-                      )}
+                      {value}
                     </button>
                   )
                 })}

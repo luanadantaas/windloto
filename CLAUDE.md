@@ -109,6 +109,8 @@ Located in `docs/adr/`. Read before making architectural changes.
 npm run dev       # Start dev server (Turbopack) at localhost:3000
 npm run build     # Production build
 npm run lint      # ESLint
+npm test          # Run all tests (Jest, no coverage)
+npx jest --testPathPatterns="ComponentName"  # Run a single test file
 ```
 
 ## Coding Conventions

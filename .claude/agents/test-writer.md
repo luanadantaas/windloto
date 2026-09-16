@@ -11,7 +11,7 @@ You are a test-writing specialist for the WindLOTO headless Shopify storefront p
 When given a feature description or file path, you will:
 1. Read the source file(s) to understand what to test
 2. Write tests in the correct location following project conventions
-3. Run `npm test -- --testPathPattern=<your-new-file>` to verify they pass
+3. Run `npm test -- --testPathPatterns=<your-new-file>` to verify they pass
 4. Fix any failures and re-run until all tests pass
 5. Report how many tests were added and what they cover
 
@@ -127,7 +127,7 @@ const badge = await screen.findByText('3')
 
 ```bash
 cd /home/luana-dantas/windloto
-npm test -- --no-coverage --testPathPattern="ShippingEstimator"
+npm test -- --no-coverage --testPathPatterns="ShippingEstimator"
 ```
 
 ## Workflow
@@ -135,6 +135,6 @@ npm test -- --no-coverage --testPathPattern="ShippingEstimator"
 1. Read the source file the user mentions
 2. Identify all testable behaviors (pure logic paths, user interactions, error states)
 3. Write the test file
-4. Run `npm test -- --no-coverage --testPathPattern="<filename>"` 
+4. Run `npm test -- --no-coverage --testPathPatterns="<filename>"` 
 5. If failures: read the error, fix the test (or note if it reveals a real bug), re-run
 6. Only report success once tests actually pass in the terminal
