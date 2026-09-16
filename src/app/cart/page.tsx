@@ -70,11 +70,16 @@ export default function CartPage() {
                 <h3 className="font-semibold text-[#0f2d5a] truncate">{item.title}</h3>
                 <p className="text-[#f97316] font-bold mt-1">${item.price.toFixed(2)}</p>
 
+                {(() => {
+                  const isBulk = item.title.toLowerCase().includes('bulk')
+                  const minQty = isBulk ? 20 : 1
+                  return (
                 <div className="flex items-center gap-3 mt-3">
                   <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                      className="px-3 py-1 hover:bg-slate-100 text-slate-600 transition-colors"
+                      disabled={item.quantity <= minQty}
+                      className="px-3 py-1 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       −
                     </button>
@@ -88,6 +93,9 @@ export default function CartPage() {
                       +
                     </button>
                   </div>
+                  {isBulk && (
+                    <span className="text-xs text-slate-400">min. 20</span>
+                  )}
 
                   <button
                     onClick={() => removeFromCart(item.variantId)}
@@ -96,6 +104,8 @@ export default function CartPage() {
                     Remove
                   </button>
                 </div>
+                  )
+                })()}
               </div>
 
               <div className="text-right flex-shrink-0 font-bold text-[#0f2d5a]">
