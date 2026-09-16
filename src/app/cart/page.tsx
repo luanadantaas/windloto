@@ -107,9 +107,10 @@ export default function CartPage() {
 
         {/* Order summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-slate-200 rounded-xl p-6 sticky top-20">
+          <div className="bg-white border border-slate-200 rounded-xl p-6">
             <h2 className="font-bold text-[#0f2d5a] text-lg mb-4">Order Summary</h2>
 
+            {/* Line items */}
             <div className="space-y-2 text-sm text-slate-600 mb-4">
               {cart.map((item) => (
                 <div key={item.variantId} className="flex justify-between">
@@ -119,11 +120,13 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 flex justify-between font-bold text-[#0f2d5a]">
+            {/* Subtotal */}
+            <div className="border-t pt-3 flex justify-between font-semibold text-[#0f2d5a]">
               <span>Subtotal</span>
               <span>${totalPrice().toFixed(2)}</span>
             </div>
 
+            {/* Shipping line */}
             {shipping && (
               <div className="flex justify-between text-sm text-slate-600 mt-2">
                 <span>{shipping.method}</span>
@@ -133,19 +136,20 @@ export default function CartPage() {
               </div>
             )}
 
+            {/* Total */}
             {shipping && (
-              <div className="flex justify-between font-bold text-[#0f2d5a] text-lg mt-2 border-t pt-2">
+              <div className="flex justify-between font-bold text-[#0f2d5a] text-lg mt-2 pt-2 border-t">
                 <span>Total</span>
                 <span>${(totalPrice() + shipping.price).toFixed(2)}</span>
               </div>
             )}
 
+            {/* Shipping estimator */}
             <ShippingEstimator onSelect={setShipping} selected={shipping} />
 
-            <div className="mt-4">
-              {error && (
-                <p className="text-red-500 text-sm mb-4">{error}</p>
-              )}
+            {/* Checkout */}
+            <div className="mt-4 space-y-3">
+              {error && <p className="text-red-500 text-sm">{error}</p>}
 
               <button
                 onClick={handleCheckout}
@@ -157,7 +161,7 @@ export default function CartPage() {
 
               <Link
                 href="/store"
-                className="block text-center text-[#0f2d5a] text-sm mt-3 hover:underline"
+                className="block text-center text-[#0f2d5a] text-sm hover:underline"
               >
                 ← Continue shopping
               </Link>
