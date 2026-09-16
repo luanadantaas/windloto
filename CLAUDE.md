@@ -103,6 +103,7 @@ Located in `docs/adr/`. Read before making architectural changes.
 - ADR 004: Checkout flow via Shopify Cart API
 - ADR 005: Vercel deployment and webhook revalidation
 - ADR 006: Testing strategy (Jest + Testing Library + MSW)
+- ADR 007: Shopify Storefront API specification (queries, mutations, discount types, limitations)
 
 ## Development Commands
 ```bash

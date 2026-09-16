@@ -8,14 +8,14 @@ export const metadata: Metadata = {
 
 export default function RotorLockPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 space-y-16">
+    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10 md:space-y-16">
 
       {/* Hero */}
       <div className="text-center">
         <span className="inline-block bg-[#f97316]/10 text-[#f97316] text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded mb-4">
           WindLOTO Product · US Patent #8720479
         </span>
-        <h1 className="text-4xl font-bold text-[#0f2d5a] mb-4">Rotor Lock</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#0f2d5a] mb-4">Rotor Lock</h1>
         <p className="text-slate-500 text-lg max-w-2xl mx-auto">
           Maintains the hydraulic selector valve in the 45° position while personnel are in the hub — ensuring a safe, OSHA-compliant work area.
         </p>

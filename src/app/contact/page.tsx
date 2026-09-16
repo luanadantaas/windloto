@@ -34,7 +34,7 @@ function ContactForm({ region }: { region: 'us' | 'international' }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
           <input
@@ -109,7 +109,7 @@ export default function ContactPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
 
         {/* US & Canada */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-8">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-8">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🇺🇸</span>
             <div>
@@ -121,7 +121,7 @@ export default function ContactPage() {
         </div>
 
         {/* Europe & South America */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-8">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-8">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">🌍</span>
             <div>

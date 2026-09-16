@@ -43,8 +43,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
 
         {/* Images */}
         <ProductImageGallery images={images} title={product.title} />
@@ -80,7 +80,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <h2 className="font-bold text-[#0f2d5a] mb-3">Technical Specifications</h2>
               <dl className="space-y-2">
                 {Object.entries(technicalSpecs).map(([key, value]) => (
-                  <div key={key} className="grid grid-cols-2 gap-2 text-sm">
+                  <div key={key} className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 text-sm">
                     <dt className="text-slate-500 capitalize">{key.replace(/_/g, ' ')}</dt>
                     <dd className="font-medium text-slate-800">{value}</dd>
                   </div>

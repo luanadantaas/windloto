@@ -53,20 +53,22 @@ describe('Header', () => {
           price: 62.5,
           image: '',
           quantity: 3,
+          stockLimit: null,
         },
       ],
       shopifyCartId: null,
     })
     render(<Header />)
-    const badge = await screen.findByText('3')
-    expect(badge).toBeInTheDocument()
+    // Two badges render: one in the desktop nav, one in the mobile controls area
+    const badges = await screen.findAllByText('3')
+    expect(badges.length).toBeGreaterThanOrEqual(1)
   })
 
   it('mobile nav is not visible initially', () => {
     render(<Header />)
     // The mobile nav is conditionally rendered (open === false means it's not in the DOM)
     // We check that the mobile nav container (md:hidden nav) is absent
-    const mobileNavs = document.querySelectorAll('nav.md\\:hidden')
+    const mobileNavs = document.querySelectorAll('nav.lg\\:hidden')
     expect(mobileNavs).toHaveLength(0)
   })
 
@@ -74,7 +76,7 @@ describe('Header', () => {
     const user = userEvent.setup()
     render(<Header />)
     await user.click(screen.getByRole('button', { name: /toggle menu/i }))
-    const mobileNavs = document.querySelectorAll('nav.md\\:hidden')
+    const mobileNavs = document.querySelectorAll('nav.lg\\:hidden')
     expect(mobileNavs.length).toBeGreaterThan(0)
   })
 })

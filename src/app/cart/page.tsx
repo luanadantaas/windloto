@@ -76,7 +76,7 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+      <div className="max-w-2xl mx-auto px-4 py-14 sm:py-24 text-center">
         <div className="text-6xl mb-6">🛒</div>
         <h1 className="text-2xl font-bold text-[#0f2d5a] mb-3">Your cart is empty</h1>
         <p className="text-slate-500 mb-8">Add some products to get started.</p>
@@ -96,7 +96,7 @@ export default function CartPage() {
         Your Cart <span className="text-slate-400 font-normal text-lg">({totalItems()} items)</span>
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
 
         {/* Cart items */}
         <div className="lg:col-span-2 space-y-4">
@@ -177,8 +177,8 @@ export default function CartPage() {
             {/* Line items */}
             <div className="space-y-2 text-sm text-slate-600 mb-4">
               {cart.map((item) => (
-                <div key={item.variantId} className="flex justify-between">
-                  <span className="truncate pr-2">{item.title} × {item.quantity}</span>
+                <div key={item.variantId} className="flex justify-between items-baseline gap-2">
+                  <span className="min-w-0 break-words">{item.title} × {item.quantity}</span>
                   <span className="flex-shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}

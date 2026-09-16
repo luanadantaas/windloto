@@ -27,7 +27,7 @@ export default function ProductImageGallery({ images, title }: { images: Shopify
           src={images[selected].url}
           alt={images[selected].altText ?? title}
           fill
-          className="object-contain p-4 transition-opacity duration-200"
+          className="object-contain p-2 sm:p-4 transition-opacity duration-200"
           priority
         />
 
@@ -35,14 +35,14 @@ export default function ProductImageGallery({ images, title }: { images: Shopify
           <>
             <button
               onClick={() => setSelected((selected - 1 + images.length) % images.length)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white hover:bg-[#0f2d5a] hover:text-white text-[#0f2d5a] rounded-full w-9 h-9 flex items-center justify-center shadow-md transition-colors text-xl font-bold"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white hover:bg-[#0f2d5a] hover:text-white text-[#0f2d5a] rounded-full w-11 h-11 flex items-center justify-center shadow-md transition-colors text-xl font-bold"
               aria-label="Previous image"
             >
               ‹
             </button>
             <button
               onClick={() => setSelected((selected + 1) % images.length)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white hover:bg-[#0f2d5a] hover:text-white text-[#0f2d5a] rounded-full w-9 h-9 flex items-center justify-center shadow-md transition-colors text-xl font-bold"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white hover:bg-[#0f2d5a] hover:text-white text-[#0f2d5a] rounded-full w-11 h-11 flex items-center justify-center shadow-md transition-colors text-xl font-bold"
               aria-label="Next image"
             >
               ›

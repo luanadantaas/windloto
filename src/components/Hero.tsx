@@ -3,12 +3,12 @@ import Link from 'next/link'
 export default function Hero() {
   return (
     <section className="bg-[#0f2d5a] text-white">
-      <div className="max-w-6xl mx-auto px-4 py-20 md:py-28 flex flex-col md:flex-row items-center gap-12">
+      <div className="max-w-6xl mx-auto px-4 py-12 sm:py-20 md:py-28 flex flex-col md:flex-row items-center gap-8 md:gap-12">
         <div className="flex-1">
           <span className="inline-block bg-[#f97316]/20 text-[#f97316] text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded mb-4">
             Wind Turbine Safety
           </span>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6">
             Precision Locking Devices for Wind Turbine Maintenance
           </h1>
           <p className="text-white/70 text-lg mb-8 max-w-lg">
@@ -38,7 +38,7 @@ export default function Hero() {
             { value: '↓ Downtime', label: 'Reduces unscheduled outages' },
             { value: 'B2B Ready', label: 'For turbine operators & OEMs' },
           ].map((stat) => (
-            <div key={stat.value} className="bg-white/10 rounded-lg p-5">
+            <div key={stat.value} className="bg-white/10 rounded-lg p-4 sm:p-5">
               <div className="text-[#f97316] font-bold text-lg mb-1">{stat.value}</div>
               <div className="text-white/60 text-sm">{stat.label}</div>
             </div>

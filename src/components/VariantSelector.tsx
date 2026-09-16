@@ -12,7 +12,7 @@ const COLOR_MAP: Record<string, string> = {
   red: '#ef4444',
   blue: '#3b82f6',
   black: '#1f2937',
-  white: '#f9fafb',
+  white: '#ffffff',
   gray: '#6b7280',
   grey: '#6b7280',
   green: '#22c55e',
@@ -44,7 +44,6 @@ const COLOR_MAP: Record<string, string> = {
   'bright red': '#ef4444',
   'matte black': '#111827',
   'gloss black': '#000000',
-  white: '#ffffff',
   'off-white': '#fafaf9',
   beige: '#d6c5a0',
   tan: '#d4a76a',
@@ -230,7 +229,7 @@ export default function VariantSelector({ options, variants, productTitle, produ
       </div>
 
       {/* Price summary */}
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-3 flex-wrap">
         <span className="text-2xl font-bold text-[#0f2d5a]">
           {currency} {(price * quantity).toFixed(2)}
         </span>

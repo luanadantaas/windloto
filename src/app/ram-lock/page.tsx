@@ -8,18 +8,18 @@ export const metadata: Metadata = {
 
 export default function RamLockPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 space-y-16">
+    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10 md:space-y-16">
 
       {/* Hero */}
       <div className="text-center">
         <span className="inline-block bg-[#f97316]/10 text-[#f97316] text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded mb-4">
           WindLOTO Product
         </span>
-        <h1 className="text-4xl font-bold text-[#0f2d5a] mb-4">Ram Lock</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#0f2d5a] mb-4">Ram Lock</h1>
         <p className="text-slate-500 text-lg max-w-2xl mx-auto">
           A two-piece device designed to prevent rotation of the pitch ram rod during wind turbine operation.
         </p>
-        <div className="mt-6 flex justify-center gap-4">
+        <div className="mt-6 flex justify-center gap-4 flex-wrap">
           <Link
             href="/products/ram-lock"
             className="bg-[#f97316] hover:bg-[#ea6c0a] text-white font-semibold px-6 py-3 rounded transition-colors"

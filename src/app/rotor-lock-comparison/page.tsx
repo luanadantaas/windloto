@@ -8,14 +8,14 @@ export const metadata: Metadata = {
 
 export default function RotorLockComparisonPage() {
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 space-y-16">
+    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10 md:space-y-16">
 
       {/* Hero */}
       <div className="text-center">
         <span className="inline-block bg-[#f97316]/10 text-[#f97316] text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded mb-4">
           Rotor Lock Comparison
         </span>
-        <h1 className="text-4xl font-bold text-[#0f2d5a] mb-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#0f2d5a] mb-4">
           No other device comes close
         </h1>
         <p className="text-slate-500 text-lg max-w-3xl mx-auto">
@@ -26,7 +26,7 @@ export default function RotorLockComparisonPage() {
       {/* Comparison table */}
       <section>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b-2 border-[#0f2d5a]">
                 <th className="text-left py-3 pr-6 text-slate-500 font-medium">Feature</th>
