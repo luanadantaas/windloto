@@ -12,12 +12,13 @@ interface CouponState {
   code: string
   discountAmount: number
   currency: string
+  discountType: 'amount' | 'free_shipping' | null
   error: string | null
   loading: boolean
 }
 
 const INITIAL_COUPON: CouponState = {
-  applied: false, code: '', discountAmount: 0, currency: 'USD', error: null, loading: false,
+  applied: false, code: '', discountAmount: 0, currency: 'USD', discountType: null, error: null, loading: false,
 }
 
 export default function CartPage() {
@@ -40,9 +41,12 @@ export default function CartPage() {
         code,
         discountAmount: result.discountAmount,
         currency: result.currency,
+        discountType: result.discountType,
         error: null,
         loading: false,
       })
+      // Free shipping discount overrides any manually selected shipping option
+      if (result.discountType === 'free_shipping') setShipping(null)
     } else {
       setCoupon((prev) => ({ ...prev, applied: false, error: result.errorMessage ?? 'Invalid code.', loading: false }))
     }
@@ -186,16 +190,27 @@ export default function CartPage() {
               <span>${totalPrice().toFixed(2)}</span>
             </div>
 
-            {/* Discount line */}
-            {coupon.applied && coupon.discountAmount > 0 && (
+            {/* Discount line — amount discount */}
+            {coupon.applied && coupon.discountType === 'amount' && coupon.discountAmount > 0 && (
               <div className="flex justify-between text-sm text-green-600 mt-2">
                 <span>Discount <span className="font-mono text-xs">({coupon.code})</span></span>
                 <span className="font-semibold">-${coupon.discountAmount.toFixed(2)}</span>
               </div>
             )}
 
-            {/* Shipping line */}
-            {shipping && (
+            {/* Discount line — free shipping */}
+            {coupon.applied && coupon.discountType === 'free_shipping' && (
+              <div className="flex justify-between text-sm text-green-600 mt-2">
+                <span className="flex items-center gap-1">
+                  <span>🚚</span>
+                  <span>Free Shipping <span className="font-mono text-xs">({coupon.code})</span></span>
+                </span>
+                <span className="font-semibold">Free</span>
+              </div>
+            )}
+
+            {/* Shipping line — only when shipping is selected and no free shipping coupon */}
+            {shipping && coupon.discountType !== 'free_shipping' && (
               <div className="flex justify-between text-sm text-slate-600 mt-2">
                 <span>{shipping.method}</span>
                 <span className={shipping.price === 0 ? 'text-green-600 font-medium' : ''}>
@@ -209,7 +224,12 @@ export default function CartPage() {
               <div className="flex justify-between font-bold text-[#0f2d5a] text-lg mt-2 pt-2 border-t">
                 <span>Total</span>
                 <span>
-                  ${Math.max(0, totalPrice() - (coupon.applied ? coupon.discountAmount : 0) + (shipping?.price ?? 0)).toFixed(2)}
+                  ${Math.max(
+                    0,
+                    totalPrice()
+                      - (coupon.discountType === 'amount' ? coupon.discountAmount : 0)
+                      + (coupon.discountType === 'free_shipping' ? 0 : (shipping?.price ?? 0))
+                  ).toFixed(2)}
                 </span>
               </div>
             )}
@@ -222,7 +242,9 @@ export default function CartPage() {
                   <span className="text-green-700 flex items-center gap-1.5">
                     <span className="font-bold">✓</span>
                     <span className="font-mono font-semibold">{coupon.code}</span>
-                    <span className="text-green-600 font-normal">applied</span>
+                    <span className="text-green-600 font-normal">
+                      {coupon.discountType === 'free_shipping' ? '— free shipping' : 'applied'}
+                    </span>
                   </span>
                   <button
                     onClick={handleRemoveCoupon}
@@ -255,8 +277,17 @@ export default function CartPage() {
               )}
             </div>
 
-            {/* Shipping estimator */}
-            <ShippingEstimator onSelect={setShipping} selected={shipping} />
+            {/* Shipping estimator — hidden when a free shipping coupon is active */}
+            {coupon.discountType === 'free_shipping' ? (
+              <div className="border-t pt-4 mt-4">
+                <p className="text-sm text-green-700 flex items-center gap-2">
+                  <span>🚚</span>
+                  <span>Your discount code includes free shipping. No need to estimate — shipping will be free at checkout.</span>
+                </p>
+              </div>
+            ) : (
+              <ShippingEstimator onSelect={setShipping} selected={shipping} />
+            )}
 
             {/* Checkout */}
             <div className="mt-4 space-y-3">

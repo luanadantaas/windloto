@@ -87,7 +87,7 @@ describe('createShopifyCheckoutAction — return value and errors', () => {
 describe('validateCouponAction', () => {
   const lines = [{ merchandiseId: NON_BULK_VARIANT_ID, quantity: 2 }]
 
-  it('returns valid=true and total discountAmount when code is applicable', async () => {
+  it('returns valid=true, discountType="amount", and total discountAmount when code is applicable', async () => {
     mockShopifyFetch.mockResolvedValueOnce({
       cartCreate: {
         cart: {
@@ -111,6 +111,24 @@ describe('validateCouponAction', () => {
     expect(result.valid).toBe(true)
     expect(result.discountAmount).toBeCloseTo(12.5)
     expect(result.currency).toBe('USD')
+    if (result.valid) expect(result.discountType).toBe('amount')
+  })
+
+  it('returns discountType="free_shipping" when code is applicable but no line-item allocations', async () => {
+    // Free shipping discounts are applicable but produce zero discountAllocations on line items
+    mockShopifyFetch.mockResolvedValueOnce({
+      cartCreate: {
+        cart: {
+          discountCodes: [{ applicable: true, code: 'FREESHIPPING2026' }],
+          lines: { edges: [{ node: { discountAllocations: [] } }] },
+        },
+        userErrors: [],
+      },
+    } as any)
+    const result = await validateCouponAction(lines, 'FREESHIPPING2026')
+    expect(result.valid).toBe(true)
+    expect(result.discountAmount).toBe(0)
+    if (result.valid) expect(result.discountType).toBe('free_shipping')
   })
 
   it('returns valid=false with errorMessage when code is not applicable', async () => {
@@ -158,5 +176,6 @@ describe('validateCouponAction', () => {
     } as any)
     const result = await validateCouponAction(lines, 'BULK20')
     expect(result.discountAmount).toBeCloseTo(8)
+    if (result.valid) expect(result.discountType).toBe('amount')
   })
 })

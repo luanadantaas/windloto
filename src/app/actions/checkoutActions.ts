@@ -67,10 +67,14 @@ interface CreateCartResponse {
   }
 }
 
+export type CouponValidationResult =
+  | { valid: false; discountAmount: 0; currency: string; discountType: null; errorMessage: string }
+  | { valid: true; discountAmount: number; currency: string; discountType: 'amount' | 'free_shipping' }
+
 export async function validateCouponAction(
   lines: CartLine[],
   discountCode: string
-): Promise<{ valid: boolean; discountAmount: number; currency: string; errorMessage?: string }> {
+): Promise<CouponValidationResult> {
   interface ValidateCartResponse {
     cartCreate: {
       cart: {
@@ -98,12 +102,12 @@ export async function validateCouponAction(
   const { cart, userErrors } = data.cartCreate
 
   if (userErrors.length > 0) {
-    return { valid: false, discountAmount: 0, currency: 'USD', errorMessage: userErrors[0].message }
+    return { valid: false, discountAmount: 0, currency: 'USD', discountType: null, errorMessage: userErrors[0].message }
   }
 
   const applicable = cart.discountCodes[0]?.applicable ?? false
   if (!applicable) {
-    return { valid: false, discountAmount: 0, currency: 'USD', errorMessage: 'Invalid or expired discount code.' }
+    return { valid: false, discountAmount: 0, currency: 'USD', discountType: null, errorMessage: 'Invalid or expired discount code.' }
   }
 
   // Sum all line-item discount allocations to get the total discount
@@ -116,7 +120,9 @@ export async function validateCouponAction(
     }
   }
 
-  return { valid: true, discountAmount: totalDiscount, currency }
+  // Free shipping discounts are applicable but produce no line-item allocations
+  const discountType = totalDiscount === 0 ? 'free_shipping' : 'amount'
+  return { valid: true, discountAmount: totalDiscount, currency, discountType }
 }
 
 export async function createShopifyCheckoutAction(
