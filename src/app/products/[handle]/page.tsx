@@ -4,18 +4,20 @@ import { ShopifyProduct } from '@/types/shopify'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import AddToCartButton from '@/components/AddToCartButton'
+import { resolveShopifyHandle } from '@/lib/productHandleMap'
 
 interface ProductResponse {
-  productByHandle: ShopifyProduct | null
+  product: ShopifyProduct | null
 }
 
 async function getProduct(handle: string): Promise<ShopifyProduct> {
+  const shopifyHandle = resolveShopifyHandle(handle)
   const data = await shopifyFetch<ProductResponse>({
     query: GET_PRODUCT_BY_HANDLE_QUERY,
-    variables: { handle },
+    variables: { handle: shopifyHandle },
   })
-  if (!data.productByHandle) notFound()
-  return data.productByHandle
+  if (!data.product) notFound()
+  return data.product
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
