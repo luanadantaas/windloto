@@ -1,17 +1,57 @@
 'use client'
 
 import { useCartStore } from '@/lib/cartStore'
-import { createShopifyCheckoutAction } from '@/app/actions/checkoutActions'
+import { createShopifyCheckoutAction, validateCouponAction } from '@/app/actions/checkoutActions'
 import ShippingEstimator from '@/components/ShippingEstimator'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+
+interface CouponState {
+  applied: boolean
+  code: string
+  discountAmount: number
+  currency: string
+  error: string | null
+  loading: boolean
+}
+
+const INITIAL_COUPON: CouponState = {
+  applied: false, code: '', discountAmount: 0, currency: 'USD', error: null, loading: false,
+}
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [shipping, setShipping] = useState<{ method: string; time: string; price: number; label: string } | null>(null)
+  const [couponInput, setCouponInput] = useState('')
+  const [coupon, setCoupon] = useState<CouponState>(INITIAL_COUPON)
+
+  async function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCoupon((prev) => ({ ...prev, loading: true, error: null }))
+    const lines = cart.map((item) => ({ merchandiseId: item.variantId, quantity: item.quantity }))
+    const result = await validateCouponAction(lines, code)
+    if (result.valid) {
+      setCoupon({
+        applied: true,
+        code,
+        discountAmount: result.discountAmount,
+        currency: result.currency,
+        error: null,
+        loading: false,
+      })
+    } else {
+      setCoupon((prev) => ({ ...prev, applied: false, error: result.errorMessage ?? 'Invalid code.', loading: false }))
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCouponInput('')
+    setCoupon(INITIAL_COUPON)
+  }
 
   async function handleCheckout() {
     if (cart.length === 0) return
@@ -22,7 +62,7 @@ export default function CartPage() {
         merchandiseId: item.variantId,
         quantity: item.quantity,
       }))
-      const checkoutUrl = await createShopifyCheckoutAction(lines)
+      const checkoutUrl = await createShopifyCheckoutAction(lines, coupon.applied ? coupon.code : undefined)
       window.location.href = checkoutUrl
     } catch (e: any) {
       setError('Failed to start checkout. Please try again.')
@@ -146,6 +186,14 @@ export default function CartPage() {
               <span>${totalPrice().toFixed(2)}</span>
             </div>
 
+            {/* Discount line */}
+            {coupon.applied && coupon.discountAmount > 0 && (
+              <div className="flex justify-between text-sm text-green-600 mt-2">
+                <span>Discount <span className="font-mono text-xs">({coupon.code})</span></span>
+                <span className="font-semibold">-${coupon.discountAmount.toFixed(2)}</span>
+              </div>
+            )}
+
             {/* Shipping line */}
             {shipping && (
               <div className="flex justify-between text-sm text-slate-600 mt-2">
@@ -157,12 +205,55 @@ export default function CartPage() {
             )}
 
             {/* Total */}
-            {shipping && (
+            {(shipping || coupon.applied) && (
               <div className="flex justify-between font-bold text-[#0f2d5a] text-lg mt-2 pt-2 border-t">
                 <span>Total</span>
-                <span>${(totalPrice() + shipping.price).toFixed(2)}</span>
+                <span>
+                  ${Math.max(0, totalPrice() - (coupon.applied ? coupon.discountAmount : 0) + (shipping?.price ?? 0)).toFixed(2)}
+                </span>
               </div>
             )}
+
+            {/* Coupon code */}
+            <div className="border-t pt-4 mt-4">
+              <h3 className="text-sm font-semibold text-[#0f2d5a] mb-2">Discount Code</h3>
+              {coupon.applied ? (
+                <div className="flex items-center justify-between text-sm bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <span className="text-green-700 flex items-center gap-1.5">
+                    <span className="font-bold">✓</span>
+                    <span className="font-mono font-semibold">{coupon.code}</span>
+                    <span className="text-green-600 font-normal">applied</span>
+                  </span>
+                  <button
+                    onClick={handleRemoveCoupon}
+                    className="text-slate-400 hover:text-red-500 text-xs transition-colors ml-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter code"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-[#0f2d5a] focus:border-transparent"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={coupon.loading || !couponInput.trim()}
+                    className="bg-[#0f2d5a] hover:bg-[#0a1f3f] disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                  >
+                    {coupon.loading ? '...' : 'Apply'}
+                  </button>
+                </div>
+              )}
+              {coupon.error && (
+                <p className="text-red-500 text-xs mt-1.5">{coupon.error}</p>
+              )}
+            </div>
 
             {/* Shipping estimator */}
             <ShippingEstimator onSelect={setShipping} selected={shipping} />
