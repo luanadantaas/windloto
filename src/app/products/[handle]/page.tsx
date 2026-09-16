@@ -3,7 +3,7 @@ import { GET_PRODUCT_BY_HANDLE_QUERY } from '@/lib/queries/products'
 import { ShopifyProduct } from '@/types/shopify'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import AddToCartButton from '@/components/AddToCartButton'
+import VariantSelector from '@/components/VariantSelector'
 import { resolveShopifyHandle } from '@/lib/productHandleMap'
 
 interface ProductResponse {
@@ -35,10 +35,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   const images = product.images.edges.map((e) => e.node)
   const variants = product.variants.edges.map((e) => e.node)
-  const firstVariant = variants[0]
-  const price = parseFloat(firstVariant?.price.amount ?? product.priceRange.minVariantPrice.amount)
-  const currency = firstVariant?.price.currencyCode ?? product.priceRange.minVariantPrice.currencyCode
-
   let technicalSpecs: Record<string, string> | null = null
   if (product.technicalSpecs?.value) {
     try {
@@ -85,26 +81,18 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           <p className="text-[#f97316] text-sm font-semibold uppercase tracking-wider mb-2">WindLOTO</p>
           <h1 className="text-3xl font-bold text-[#0f2d5a] mb-4">{product.title}</h1>
 
-          <div className="text-2xl font-bold text-[#0f2d5a] mb-6">
-            {currency} {price.toFixed(2)}
-          </div>
-
           <div
             className="text-slate-600 leading-relaxed mb-8 prose prose-sm max-w-none"
             dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
           />
 
-          {firstVariant && (
-            <div className="mb-6">
-              <AddToCartButton
-                variantId={firstVariant.id}
-                title={product.title}
-                price={price}
-                image={images[0]?.url ?? ''}
-                availableForSale={firstVariant.availableForSale}
-              />
-            </div>
-          )}
+          <div className="mb-6">
+            <VariantSelector
+              variants={variants}
+              productTitle={product.title}
+              productImage={images[0]?.url ?? ''}
+            />
+          </div>
 
           <div className="text-slate-500 text-sm space-y-1">
             <p>✓ Free USPS Priority shipping (US orders)</p>
