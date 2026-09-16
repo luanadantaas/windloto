@@ -1,9 +1,9 @@
 import { shopifyFetch } from '@/lib/shopify'
 import { GET_PRODUCT_BY_HANDLE_QUERY } from '@/lib/queries/products'
 import { ShopifyProduct } from '@/types/shopify'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import VariantSelector from '@/components/VariantSelector'
+import ProductImageGallery from '@/components/ProductImageGallery'
 import { resolveShopifyHandle } from '@/lib/productHandleMap'
 
 interface ProductResponse {
@@ -47,34 +47,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
         {/* Images */}
-        <div className="space-y-4">
-          {images.length > 0 ? (
-            <>
-              <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
-                <Image
-                  src={images[0].url}
-                  alt={images[0].altText ?? product.title}
-                  fill
-                  className="object-contain p-4"
-                  priority
-                />
-              </div>
-              {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {images.slice(1).map((img, i) => (
-                    <div key={i} className="relative aspect-square bg-slate-100 rounded-lg overflow-hidden">
-                      <Image src={img.url} alt={img.altText ?? product.title} fill className="object-contain p-2" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="aspect-square bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-              No image
-            </div>
-          )}
-        </div>
+        <ProductImageGallery images={images} title={product.title} />
 
         {/* Info */}
         <div>
