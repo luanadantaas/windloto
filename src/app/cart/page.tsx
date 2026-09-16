@@ -73,8 +73,13 @@ export default function CartPage() {
                 {(() => {
                   const isBulk = item.title.toLowerCase().includes('bulk')
                   const minQty = isBulk ? 20 : 1
+                  const maxQty = item.stockLimit !== null && item.stockLimit !== undefined
+                    ? item.stockLimit
+                    : Infinity
+                  const isLowStock = item.stockLimit !== null && item.stockLimit !== undefined
+                    && item.stockLimit <= 10 && item.stockLimit > 0
                   return (
-                <div className="flex items-center gap-3 mt-3">
+                <div className="flex items-center gap-3 mt-3 flex-wrap">
                   <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
@@ -88,7 +93,8 @@ export default function CartPage() {
                     </span>
                     <button
                       onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                      className="px-3 py-1 hover:bg-slate-100 text-slate-600 transition-colors"
+                      disabled={item.quantity >= maxQty}
+                      className="px-3 py-1 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     >
                       +
                     </button>
@@ -96,7 +102,11 @@ export default function CartPage() {
                   {isBulk && (
                     <span className="text-xs text-slate-400">min. 20</span>
                   )}
-
+                  {isLowStock && (
+                    <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                      Only {item.stockLimit} left
+                    </span>
+                  )}
                   <button
                     onClick={() => removeFromCart(item.variantId)}
                     className="text-slate-400 hover:text-red-500 text-sm transition-colors"

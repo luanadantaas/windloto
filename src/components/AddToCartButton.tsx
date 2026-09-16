@@ -10,14 +10,15 @@ interface Props {
   image: string
   availableForSale: boolean
   quantity?: number
+  stockLimit?: number | null
 }
 
-export default function AddToCartButton({ variantId, title, price, image, availableForSale, quantity = 1 }: Props) {
+export default function AddToCartButton({ variantId, title, price, image, availableForSale, quantity = 1, stockLimit = null }: Props) {
   const addToCart = useCartStore((s) => s.addToCart)
   const [added, setAdded] = useState(false)
 
   function handleAdd() {
-    addToCart({ variantId, title, price, image, quantity })
+    addToCart({ variantId, title, price, image, quantity, stockLimit })
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }

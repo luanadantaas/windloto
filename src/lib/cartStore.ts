@@ -9,6 +9,7 @@ export interface CartLineItem {
   price: number
   image: string
   quantity: number
+  stockLimit: number | null  // null = unlimited (stock tracking off in Shopify)
 }
 
 interface CartStore {

@@ -20,6 +20,7 @@ const variants = [
     id: 'gid://shopify/ProductVariant/100',
     title: 'Single Unit',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '62.50', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Order Type', value: 'Single Unit' }],
   },
@@ -27,6 +28,7 @@ const variants = [
     id: 'gid://shopify/ProductVariant/101',
     title: 'Bulk Order (20+)',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '55.00', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Order Type', value: 'Bulk Order (20+)' }],
   },
@@ -38,6 +40,7 @@ const colorVariants = [
     id: 'cv1',
     title: 'Red',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '50.00', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Red' }],
   },
@@ -45,6 +48,7 @@ const colorVariants = [
     id: 'cv2',
     title: 'Blue',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '50.00', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Blue' }],
   },
@@ -52,6 +56,7 @@ const colorVariants = [
     id: 'cv3',
     title: 'Navy',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '50.00', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Navy' }],
   },
@@ -64,6 +69,7 @@ const mixedColorVariants = [
     id: 'mc1',
     title: 'Navy',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '62.50', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Navy' }],
   },
@@ -71,6 +77,7 @@ const mixedColorVariants = [
     id: 'mc2',
     title: 'Red',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '62.50', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Red' }],
   },
@@ -78,6 +85,7 @@ const mixedColorVariants = [
     id: 'mc3',
     title: 'Chartreuse',
     availableForSale: true,
+    quantityAvailable: null,
     price: { amount: '62.50', currencyCode: 'USD' },
     selectedOptions: [{ name: 'Color', value: 'Chartreuse' }],
   },
@@ -227,5 +235,96 @@ describe('VariantSelector — color swatches', () => {
     const pill = screen.getByRole('button', { name: 'Chartreuse' })
     await user.click(pill)
     expect(pill.className).toContain('border-[#0f2d5a]')
+  })
+})
+
+describe('VariantSelector — stock quantity limits', () => {
+  const makeVariant = (id: string, qty: number | null) => ({
+    id,
+    title: 'Single Unit',
+    availableForSale: qty === null || qty > 0,
+    quantityAvailable: qty,
+    price: { amount: '62.50', currencyCode: 'USD' },
+    selectedOptions: [{ name: 'Order Type', value: 'Single Unit' }],
+  })
+
+  const stockOptions = [{ name: 'Order Type', values: ['Single Unit'] }]
+
+  it('+ button is disabled when quantity equals stock limit', () => {
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', 3)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    // Default qty is 1; increase to 3 (the limit)
+    const plusBtn = screen.getByRole('button', { name: '+' })
+    // At qty=1 the + should be enabled (stock=3)
+    expect(plusBtn).not.toBeDisabled()
+  })
+
+  it('+ button becomes disabled when quantity reaches stock limit', async () => {
+    const user = userEvent.setup()
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', 2)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    const plusBtn = screen.getByRole('button', { name: '+' })
+    await user.click(plusBtn)  // qty goes to 2 = stock limit
+    expect(plusBtn).toBeDisabled()
+  })
+
+  it('shows "Only X left" badge when stock is 10 or fewer', () => {
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', 5)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    expect(screen.getByText('Only 5 left')).toBeInTheDocument()
+  })
+
+  it('does not show low-stock badge when stock is null (tracking off)', () => {
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', null)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    expect(screen.queryByText(/only.*left/i)).not.toBeInTheDocument()
+  })
+
+  it('does not show low-stock badge when stock is above 10', () => {
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', 50)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    expect(screen.queryByText(/only.*left/i)).not.toBeInTheDocument()
+  })
+
+  it('+ button is not disabled when stock is null (no limit)', () => {
+    render(
+      <VariantSelector
+        options={stockOptions}
+        variants={[makeVariant('v1', null)]}
+        productTitle="Ram Lock"
+        productImage="img.jpg"
+      />
+    )
+    expect(screen.getByRole('button', { name: '+' })).not.toBeDisabled()
   })
 })

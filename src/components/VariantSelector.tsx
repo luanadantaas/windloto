@@ -88,10 +88,15 @@ export default function VariantSelector({ options, variants, productTitle, produ
   const activeVariant = findVariant(variants, selected) ?? firstVariant
   const isBulk = activeVariant ? isBulkVariant(activeVariant) : false
   const minQty = isBulk ? BULK_MIN : 1
+  const stockAvailable = activeVariant?.quantityAvailable ?? null  // null = tracking off
+  const maxQty = stockAvailable !== null ? stockAvailable : Infinity
+  const isLowStock = stockAvailable !== null && stockAvailable <= 10 && stockAvailable > 0
 
   useEffect(() => {
-    setQuantity(isBulk ? BULK_MIN : 1)
-  }, [isBulk])
+    const defaultQty = isBulk ? BULK_MIN : 1
+    const capped = stockAvailable !== null ? Math.min(defaultQty, stockAvailable) : defaultQty
+    setQuantity(capped)
+  }, [activeVariant?.id])
 
   function selectOption(name: string, value: string) {
     setSelected((prev) => ({ ...prev, [name]: value }))
@@ -188,27 +193,39 @@ export default function VariantSelector({ options, variants, productTitle, produ
           Quantity
           {isBulk && <span className="ml-2 text-xs font-normal text-[#f97316]">minimum {BULK_MIN} units</span>}
         </label>
-        <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden w-fit">
-          <button
-            onClick={() => setQuantity((q) => Math.max(minQty, q - 1))}
-            disabled={quantity <= minQty}
-            className="px-4 py-2 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg"
-          >
-            −
-          </button>
-          <input
-            type="number"
-            min={minQty}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(minQty, parseInt(e.target.value) || minQty))}
-            className="w-16 text-center py-2 text-sm font-medium border-x border-slate-300 focus:outline-none"
-          />
-          <button
-            onClick={() => setQuantity((q) => q + 1)}
-            className="px-4 py-2 hover:bg-slate-100 text-slate-600 transition-colors text-lg"
-          >
-            +
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden w-fit">
+            <button
+              onClick={() => setQuantity((q) => Math.max(minQty, q - 1))}
+              disabled={quantity <= minQty}
+              className="px-4 py-2 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={minQty}
+              max={maxQty === Infinity ? undefined : maxQty}
+              value={quantity}
+              onChange={(e) => {
+                const val = Math.max(minQty, parseInt(e.target.value) || minQty)
+                setQuantity(maxQty !== Infinity ? Math.min(val, maxQty) : val)
+              }}
+              className="w-16 text-center py-2 text-sm font-medium border-x border-slate-300 focus:outline-none"
+            />
+            <button
+              onClick={() => setQuantity((q) => Math.min(maxQty === Infinity ? q + 1 : maxQty, q + 1))}
+              disabled={quantity >= maxQty}
+              className="px-4 py-2 hover:bg-slate-100 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg"
+            >
+              +
+            </button>
+          </div>
+          {isLowStock && (
+            <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-1 rounded-full">
+              Only {stockAvailable} left
+            </span>
+          )}
         </div>
       </div>
 
@@ -232,6 +249,7 @@ export default function VariantSelector({ options, variants, productTitle, produ
         image={productImage}
         availableForSale={activeVariant?.availableForSale ?? false}
         quantity={quantity}
+        stockLimit={stockAvailable}
       />
     </div>
   )

@@ -32,6 +32,7 @@ export const GET_ALL_PRODUCTS_QUERY = `
                 id
                 title
                 availableForSale
+                quantityAvailable
                 price {
                   amount
                   currencyCode
@@ -81,6 +82,7 @@ export const GET_PRODUCT_BY_HANDLE_QUERY = `
             id
             title
             availableForSale
+            quantityAvailable
             price {
               amount
               currencyCode
