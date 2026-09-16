@@ -22,7 +22,7 @@ export default function ProductImageGallery({ images, title }: { images: Shopify
   return (
     <div className="space-y-3">
       {/* Main image */}
-      <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
+      <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden group">
         <Image
           src={images[selected].url}
           alt={images[selected].altText ?? title}
@@ -30,6 +30,25 @@ export default function ProductImageGallery({ images, title }: { images: Shopify
           className="object-contain p-4 transition-opacity duration-200"
           priority
         />
+
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={() => setSelected((selected - 1 + images.length) % images.length)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#0f2d5a] rounded-full w-9 h-9 flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+            <button
+              onClick={() => setSelected((selected + 1) % images.length)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#0f2d5a] rounded-full w-9 h-9 flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Next image"
+            >
+              ›
+            </button>
+          </>
+        )}
       </div>
 
       {/* Thumbnails — only shown if more than 1 image */}
