@@ -2,6 +2,7 @@
 
 import { useCartStore } from '@/lib/cartStore'
 import { createShopifyCheckoutAction } from '@/app/actions/checkoutActions'
+import ShippingEstimator from '@/components/ShippingEstimator'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -10,6 +11,7 @@ export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [shipping, setShipping] = useState<{ method: string; time: string; price: number; label: string } | null>(null)
 
   async function handleCheckout() {
     if (cart.length === 0) return
@@ -117,30 +119,49 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div className="border-t pt-4 mb-2 flex justify-between font-bold text-[#0f2d5a]">
+            <div className="border-t pt-4 flex justify-between font-bold text-[#0f2d5a]">
               <span>Subtotal</span>
               <span>${totalPrice().toFixed(2)}</span>
             </div>
-            <p className="text-slate-400 text-xs mb-6">Shipping calculated at checkout</p>
 
-            {error && (
-              <p className="text-red-500 text-sm mb-4">{error}</p>
+            {shipping && (
+              <div className="flex justify-between text-sm text-slate-600 mt-2">
+                <span>{shipping.method}</span>
+                <span className={shipping.price === 0 ? 'text-green-600 font-medium' : ''}>
+                  {shipping.label}
+                </span>
+              </div>
             )}
 
-            <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-60 text-white font-semibold py-3 rounded transition-colors"
-            >
-              {loading ? 'Redirecting...' : 'Checkout'}
-            </button>
+            {shipping && (
+              <div className="flex justify-between font-bold text-[#0f2d5a] text-lg mt-2 border-t pt-2">
+                <span>Total</span>
+                <span>${(totalPrice() + shipping.price).toFixed(2)}</span>
+              </div>
+            )}
 
-            <Link
-              href="/store"
-              className="block text-center text-[#0f2d5a] text-sm mt-3 hover:underline"
-            >
-              ← Continue shopping
-            </Link>
+            <ShippingEstimator onSelect={setShipping} selected={shipping} />
+
+            <div className="mt-4">
+              {error && (
+                <p className="text-red-500 text-sm mb-4">{error}</p>
+              )}
+
+              <button
+                onClick={handleCheckout}
+                disabled={loading}
+                className="w-full bg-[#f97316] hover:bg-[#ea6c0a] disabled:opacity-60 text-white font-semibold py-3 rounded transition-colors"
+              >
+                {loading ? 'Redirecting...' : 'Checkout'}
+              </button>
+
+              <Link
+                href="/store"
+                className="block text-center text-[#0f2d5a] text-sm mt-3 hover:underline"
+              >
+                ← Continue shopping
+              </Link>
+            </div>
           </div>
         </div>
 
