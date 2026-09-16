@@ -9,14 +9,15 @@ interface Props {
   price: number
   image: string
   availableForSale: boolean
+  quantity?: number
 }
 
-export default function AddToCartButton({ variantId, title, price, image, availableForSale }: Props) {
+export default function AddToCartButton({ variantId, title, price, image, availableForSale, quantity = 1 }: Props) {
   const addToCart = useCartStore((s) => s.addToCart)
   const [added, setAdded] = useState(false)
 
   function handleAdd() {
-    addToCart({ variantId, title, price, image, quantity: 1 })
+    addToCart({ variantId, title, price, image, quantity })
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
